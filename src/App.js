@@ -21,7 +21,7 @@ function App() {
         </a>
         
       </header>
-       <InputForm ></InputForm>
+       <InputForm></InputForm>
     </div>
   );
 }

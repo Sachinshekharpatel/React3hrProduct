@@ -1,63 +1,70 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
-function InputForm() {
-  const initialData = [
-    { id: 1, productName: "Laptop", category: "technology", price: '49999' }
+function InputForm(){
+  const initialData= [
+    { id: 1, Name: "Laptop", Price: '49999', category: "technology"}
   ];
+      const [data,setData] = useState(initialData);
+      const [selectedCategory,setSelectedCategory] = useState('technology');
+      
 
-  const [myData, setMyData] = useState(initialData);
-  const [selectedCategory, setSelectedCategory] = useState('technology');
+      const productIDRef = useRef(null);
+      const productNameRef = useRef(null);
+      const productPriceRef = useRef(null);
 
-  useEffect(() => {
-    const storedData = JSON.parse(localStorage.getItem('mydata')) || [];
-    setMyData(storedData);
-  }, []);
+      useEffect(() => {
+        const ls = JSON.parse(localStorage.getItem('array')) || [];
+        if (ls.length>0) {
+          setData(ls);
+        }
+      }, []);
+      
+      const handleCategoryChange=(e)=>{
+        setSelectedCategory(e.target.value);  
+        }
 
+      const sendData=()=>{
+        const Id = productIDRef.current.value;
+        const Name = productNameRef.current.value;  
+        const Price = productPriceRef.current.value;
+        if(Id>0 && Name.length>0  && Price>0){
 
-  const handleCategoryChange = (event) => {
-    setSelectedCategory(event.target.value);
-  };
+        const obj = {
+          id:Id,
+          Name:Name,
+          Price:Price,
+          category:selectedCategory
+        }
+        const newData = [...data, obj];
+        setData(newData);
+        
+        localStorage.setItem('array',JSON.stringify(newData));
+        
+         productIDRef.current.value ="";
+         productNameRef.current.value="";  
+         productPriceRef.current.value="";
+       }else {
+        alert("Please Fill All The Detail")
+       }
+      }
 
-  const sendData = () => {
-    const productId = parseInt(document.getElementById('productId').value);
-    const sellingPrice = parseInt(document.getElementById('sellingPrice').value);
-    const productName = document.getElementById('productName').value;
-
-    const newDataObject = {
-      id: productId,
-      productName: productName,
-      category: selectedCategory,
-      price: sellingPrice.toString()
-    };
-
-    const updatedData = [...myData, newDataObject];
-    setMyData(updatedData);
-    localStorage.setItem('mydata', JSON.stringify(updatedData));
-
-    document.getElementById('productId').value= '';
-    document.getElementById('sellingPrice').value= '';
-    document.getElementById('productName').value= '';
-  };
-
-  const deleteItem = (itemId) => {
-    const updatedData = myData.filter(item => {
-        return item.id !== itemId;
-      });
-    setMyData(updatedData);
-    localStorage.setItem('mydata', JSON.stringify(updatedData));
-  };
+    const deletebtn =(itemId)=>{
+      const deleteItem = data.filter((item)=> item.id !== itemId)
+      localStorage.setItem('array',JSON.stringify(deleteItem));
+      setData(deleteItem);
+    }
 
   return (
     <React.Fragment>
       <div>
         <label>Product id :</label>
-        <input type='number' id="productId"></input>
+        <input type='number'placeholder='Enter ID' ref={productIDRef} ></input>
         <label>Selling price :</label>
-        <input id="sellingPrice" type='number'></input>
+        <input type='number'placeholder='Enter Price' ref={productPriceRef}></input>
         <label>Product Name :</label>
-        <input id="productName" type='text'></input>
+        <input type='text' placeholder='Enter Product Name' ref={productNameRef}></input>
         <label>Choose a category :</label>
-        <select id="category" value={selectedCategory} onChange={handleCategoryChange}>
+        <select value={selectedCategory} onChange={handleCategoryChange}>
           <option value="technology">Technology</option>
           <option value="SkinCare">SkinCare</option>
           <option value="Food">Food</option>
@@ -66,44 +73,49 @@ function InputForm() {
       </div>
       <div>
         <div>
-            <h2>Technology Items:</h2>
-            {myData
-            .filter(item=>item.category === 'technology')
-            .map(item=> (
-                <React.Fragment>
-                     <p key={item.id}>{item.productName} - {item.price}</p>
-                     <button onClick={() => deleteItem(item.id)}>Delete</button>
-                </React.Fragment>
-               
-                
-            ))}
+          <h2 style={{textAlign:'start'}}>Technology Items:</h2>
+          {data.filter((item)=> item.category === 'technology')
+          .map((items)=>{
+            return(
+            <React.Fragment key={items.id}>
+              <div style={{ textAlign:'start'}}>
+              <p>{items.Name}-{items.Price}</p>
+              <button onClick={()=> deletebtn(items.id)}>Delete</button>
+             </div>
+            </React.Fragment>
+            )
+          })}
         </div>
         <div>
-            <h2>Food Items:</h2>
-            {myData
-            .filter(item => item.category === 'Food')
-            .map(item => (
-                <React.Fragment>
-                <p key={item.id}>{item.productName} - {item.price}</p>
-                <button onClick={() => deleteItem(item.id)}>Delete</button>
-           </React.Fragment>
-           ))}
+          <h2 style={{ textAlign:'start'}}>Food Items:</h2>
+          {data.filter((item)=>item.category === 'Food')
+          .map((items)=>{
+            return(
+              <React.Fragment key={items.id}>
+              <div style={{ textAlign:'start'}}>
+              <p>{items.Name}-{items.Price}</p>
+              <button onClick={()=> deletebtn(items.id)}>Delete</button>
+             </div>
+            </React.Fragment>
+            )
+          })}
         </div>
         <div>
-            <h2>SkinCare Items:</h2>
-            {myData
-            .filter(item => item.category === 'SkinCare')
-            .map(item => (
-                <React.Fragment>
-                     <p key={item.id}>{item.productName} - {item.price}</p>
-                     <button onClick={() => deleteItem(item.id)}>Delete</button>
-                </React.Fragment>
-            ))}
+          <h2 style={{ textAlign:'start'}}>SkinCare Items:</h2>
+          {data.filter((item)=>item.category === 'SkinCare')
+          .map((items)=>{
+            return(
+              <React.Fragment key={items.id}>
+              <div style={{ textAlign:'start'}}>
+              <p>{items.Name}-{items.Price}</p>
+              <button onClick={()=> deletebtn(items.id)}>Delete</button>
+             </div>
+            </React.Fragment>
+            )
+          })}
         </div>
       </div>
-
     </React.Fragment>
   );
 }
-
 export default InputForm;
